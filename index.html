@@ -1052,7 +1052,7 @@ Instructions:
 }`;
 
       if (provider === 'gemini') {
-        const models = ['gemini-3.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
+        const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite'];
         let lastError = null;
         for (const model of models) {
           try {
@@ -1134,7 +1134,7 @@ Output EXACTLY a JSON array of objects wrapped in a results field:
 
       try {
         if (provider === 'gemini') {
-          const models = ['gemini-3.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
+          const models = ['gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite'];
           let lastError = null;
           for (const model of models) {
             try {
@@ -2069,7 +2069,7 @@ Output EXACTLY a JSON array of objects wrapped in a results field:
                 </div>
                 <div onClick={() => setAiProvider('gemini')} style={{ padding: '12px', border: `2px solid ${aiProvider === 'gemini' ? 'var(--primary-indigo)' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', textAlign: 'center', background: aiProvider === 'gemini' ? 'rgba(79,70,229,0.05)' : 'none' }}>
                   <strong>Google Gemini</strong>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Gemini 3.5 Flash</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Gemini 2.5 / 3.5 (Auto)</div>
                 </div>
               </div>
             </div>
