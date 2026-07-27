@@ -1,0 +1,2096 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LexiJournal - AI English Diary & Tutor</title>
+  <meta name="description" content="Improve your English grammar, vocabulary, and expression writing with real-time AI guidance, customized feedback, and interactive charts." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet -->
+  <style>
+    :root {
+      /* Colors */
+      --primary-indigo: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent-emerald: #10b981;
+      --accent-emerald-glow: rgba(16, 185, 129, 0.15);
+      --error-crimson: #ef4444;
+      --warning-amber: #f59e0b;
+      --info-sky: #0ea5e9;
+
+      /* Theme: Dark (Default) */
+      --bg-app: #09090b;
+      --bg-panel: rgba(18, 18, 24, 0.7);
+      --bg-card: rgba(30, 30, 40, 0.45);
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --glass-bg: rgba(18, 18, 24, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.06);
+      --glow-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+      /* Book Theme */
+      --book-bg: #1c1917;
+      --book-page-bg: #fcfbf7;
+      --book-page-text: #292524;
+      --book-page-border: #e7e5e4;
+      --book-page-shadow: rgba(0, 0, 0, 0.15);
+
+      --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-serif: 'Merriweather', Georgia, serif;
+    }
+
+    [data-theme='light'] {
+      --bg-app: #f4f5f6;
+      --bg-panel: rgba(255, 255, 255, 0.75);
+      --bg-card: rgba(255, 255, 255, 0.6);
+      --text-main: #18181b;
+      --text-muted: #52525b;
+      --border-color: rgba(0, 0, 0, 0.08);
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --glass-border: rgba(0, 0, 0, 0.06);
+      --glow-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+      --book-bg: #e7e5e4;
+      --book-page-bg: #fffdfa;
+      --book-page-text: #1c1917;
+      --book-page-border: #d6d3d1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      min-height: 100vh;
+      transition: background-color 0.4s ease, color 0.4s ease;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* Layout */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem 80px;
+    }
+
+    .glass-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      box-shadow: var(--glow-shadow);
+      padding: 2rem;
+      transition: transform 0.3s ease;
+    }
+
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(79, 70, 229, 0.3);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 2rem;
+      margin-top: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Buttons */
+    .btn {
+      font-family: var(--font-sans);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-indigo), #6366f1);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-emerald {
+      background: linear-gradient(135deg, var(--accent-emerald), #34d399);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-emerald:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .input-field {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary-indigo);
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.25);
+    }
+
+    /* Header */
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 1.5rem;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--text-main), var(--primary-indigo));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Auth */
+    .auth-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* Calendar */
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      text-align: center;
+    }
+
+    .weekday-header {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding-bottom: 8px;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .calendar-day:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(79, 70, 229, 0.2);
+      transform: scale(1.05);
+    }
+
+    .day-outside {
+      opacity: 0.25;
+      cursor: default;
+    }
+
+    .day-today {
+      border: 1.5px solid var(--primary-indigo);
+      font-weight: 700;
+    }
+
+    .diary-dot {
+      position: absolute;
+      bottom: 6px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--accent-emerald);
+      box-shadow: 0 0 8px var(--accent-emerald);
+    }
+
+    .day-score-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 0.65rem;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: var(--accent-emerald-glow);
+      color: var(--accent-emerald);
+      font-weight: 600;
+    }
+
+    /* Score Radial Gauge */
+    .score-gauge-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 130px;
+      height: 130px;
+    }
+
+    .score-svg {
+      transform: rotate(-90deg);
+      width: 120px;
+      height: 120px;
+    }
+
+    .score-circle-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.05);
+      stroke-width: 8;
+    }
+
+    .score-circle-progress {
+      fill: none;
+      stroke: var(--accent-emerald);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.8s ease;
+    }
+
+    .score-text-overlay {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .score-number {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .score-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Editor View */
+    .editor-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .editor-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .editor-textarea {
+      width: 100%;
+      min-height: 320px;
+      background: rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .editor-textarea:focus {
+      border-color: var(--primary-indigo);
+    }
+
+    .editor-word-count {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    /* Correction Cards */
+    .corrections-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .correction-card {
+      border-left: 4px solid var(--primary-indigo);
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 4px 12px 12px 4px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .correction-card.grammar { border-left-color: var(--error-crimson); }
+    .correction-card.vocabulary { border-left-color: var(--info-sky); }
+    .correction-card.expression { border-left-color: var(--warning-amber); }
+
+    .correction-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .correction-type {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .grammar .correction-type { background: rgba(239, 68, 68, 0.1); color: var(--error-crimson); }
+    .vocabulary .correction-type { background: rgba(14, 165, 233, 0.1); color: var(--info-sky); }
+    .expression .correction-type { background: rgba(245, 158, 11, 0.1); color: var(--warning-amber); }
+
+    .correction-diff {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .diff-original {
+      text-decoration: line-through;
+      color: var(--text-muted);
+      background: rgba(239, 68, 68, 0.05);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .diff-corrected {
+      color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .correction-explanation {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Book Viewer */
+    .book-outer-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 1500px;
+      width: 100%;
+      padding: 1.5rem 0;
+    }
+
+    .book {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      height: 580px;
+      background-color: var(--book-bg);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.4), inset 0 2px 5px rgba(255,255,255,0.05);
+      border-radius: 8px;
+      display: flex;
+      transform-style: preserve-3d;
+      border: 8px solid #292524;
+      overflow: hidden;
+    }
+
+    .book::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 4px;
+      background: rgba(0, 0, 0, 0.35);
+      transform: translateX(-50%);
+      z-index: 5;
+      box-shadow: 0 0 10px rgba(0,0,0,0.8);
+    }
+
+    .book-page {
+      width: 50%;
+      height: 100%;
+      background-color: var(--book-page-bg);
+      color: var(--book-page-text);
+      padding: 2.5rem;
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      position: relative;
+      overflow-y: auto;
+      box-shadow: inset 3px 0 10px rgba(0,0,0,0.05);
+    }
+
+    .left-page {
+      border-radius: 4px 0 0 4px;
+      border-right: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .right-page {
+      border-radius: 0 4px 4px 0;
+      border-left: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .book-page-header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--book-page-border);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      color: #78716c;
+      font-weight: 500;
+    }
+
+    .book-page-content {
+      min-height: 250px;
+      white-space: pre-wrap;
+    }
+
+    .book-page-score {
+      display: inline-block;
+      background: #f0fdf4;
+      color: #16a34a;
+      border: 1px solid #dcfce7;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-family: var(--font-sans);
+      margin-bottom: 1rem;
+    }
+
+    .book-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 900px;
+      margin: 1.5rem auto 0;
+    }
+
+    @media (max-width: 960px) {
+      .book {
+        height: 520px;
+        flex-direction: column;
+      }
+      .book::before {
+        display: none;
+      }
+      .book-page {
+        width: 100%;
+      }
+      .left-page {
+        display: none;
+      }
+      .right-page {
+        border-radius: 4px;
+      }
+    }
+
+    /* Custom SVG chart */
+    .chart-container {
+      width: 100%;
+      height: 240px;
+      position: relative;
+      margin-top: 1rem;
+    }
+
+    .chart-line {
+      fill: none;
+      stroke: var(--primary-indigo);
+      stroke-width: 3;
+      stroke-linecap: round;
+    }
+
+    .chart-area {
+      fill: url(#chart-gradient);
+      opacity: 0.15;
+    }
+
+    .chart-dot {
+      fill: var(--primary-indigo);
+      stroke: var(--bg-app);
+      stroke-width: 2.5;
+      cursor: pointer;
+      transition: r 0.2s ease, fill 0.2s ease;
+    }
+
+    .chart-dot:hover {
+      r: 7;
+      fill: var(--accent-emerald);
+    }
+
+    .chart-grid {
+      stroke: var(--border-color);
+      stroke-width: 1;
+      stroke-dasharray: 4 4;
+    }
+
+    .chart-axis-text {
+      fill: var(--text-muted);
+      font-size: 0.75rem;
+      font-family: var(--font-sans);
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      background: var(--bg-panel);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border-color);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      color: var(--text-main);
+      z-index: 10;
+    }
+
+    /* Toggle Switch */
+    .theme-switch {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 4px;
+      border-radius: 9999px;
+      cursor: pointer;
+    }
+
+    .theme-switch-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .theme-switch-btn.active {
+      background: var(--primary-indigo);
+      color: white;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+    }
+
+    /* Search Results */
+    .search-results-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .search-result-card {
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      border-left: 3px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .search-result-card:hover {
+      border-left-color: var(--accent-emerald);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .search-result-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .search-result-reason {
+      background: rgba(16, 185, 129, 0.08);
+      color: var(--accent-emerald);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .search-result-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Alerts */
+    .alert {
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      border: 1px solid transparent;
+    }
+
+    .alert-info {
+      background: rgba(14, 165, 233, 0.08);
+      border-color: rgba(14, 165, 233, 0.15);
+      color: var(--info-sky);
+    }
+
+    .alert-warning {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.15);
+      color: var(--warning-amber);
+    }
+
+    /* Loader */
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--primary-indigo);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .spinner-large {
+      width: 48px;
+      height: 48px;
+      border-width: 4px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Bottom Nav for Mobile */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-panel);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      padding: 0.75rem;
+      z-index: 100;
+    }
+
+    @media (min-width: 768px) {
+      .bottom-nav {
+        display: none;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .desktop-only-nav {
+        display: none !important;
+      }
+    }
+  </style>
+
+  <!-- React Dependencies -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <!-- Babel to compile JSX in-browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+
+  <!-- Firebase Compat Library -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React Application Core -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // --- FIREBASE CONFIGURATION & INITIALIZATION ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyB97rABkmvmddwkC7RhbKEy0wSI2VXvu3A",
+      authDomain: "diary-8830a.firebaseapp.com",
+      projectId: "diary-8830a",
+      storageBucket: "diary-8830a.firebasestorage.app",
+      messagingSenderId: "1017648804868",
+      appId: "1:1017648804868:web:bb39900f7e342fff563151"
+    };
+
+    // Initialize firebase app
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // LocalStorage helper in case database connection issues occur
+    const getMockSession = () => JSON.parse(localStorage.getItem('simple_mock_session') || 'null');
+    const setMockSession = (val) => localStorage.setItem('simple_mock_session', JSON.stringify(val));
+
+    // --- INLINE SVG ICONS ---
+    const Icon = ({ name, size = 18, color = "currentColor", className = "", style = {}, ...props }) => {
+      const paths = {
+        dashboard: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6zm10 0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2V6zM4 16a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2zm10 0a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2z" />,
+        book: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.168.477-4.5 1.253" />,
+        search: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />,
+        settings: <g><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><circle cx="12" cy="12" r="3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></g>,
+        logout: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />,
+        sun: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />,
+        moon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />,
+        arrowLeft: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />,
+        arrowRight: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />,
+        sparkles: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />,
+        save: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />,
+        trash: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />,
+        checkCircle: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />,
+        alertCircle: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />,
+        calendar: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />,
+        chevronLeft: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />,
+        chevronRight: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />,
+        edit: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />,
+        trendingUp: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />,
+        award: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+      };
+
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={color}
+          className={className}
+          style={{ width: `${size}px`, height: `${size}px`, ...style }}
+          {...props}
+        >
+          {paths[name] || null}
+        </svg>
+      );
+    };
+
+    // --- AI SERVICE CLIENT ---
+    const GEMINI_CORRECTION_SCHEMA = {
+      type: "OBJECT",
+      properties: {
+        score: { type: "INTEGER" },
+        corrections: {
+          type: "ARRAY",
+          items: {
+            type: "OBJECT",
+            properties: {
+              original: { type: "STRING" },
+              corrected: { type: "STRING" },
+              type: { type: "STRING" },
+              explanation: { type: "STRING" }
+            },
+            required: ["original", "corrected", "type", "explanation"]
+          }
+        },
+        overallFeedback: { type: "STRING" }
+      },
+      required: ["score", "corrections", "overallFeedback"]
+    };
+
+    const GEMINI_SEARCH_SCHEMA = {
+      type: "OBJECT",
+      properties: {
+        results: {
+          type: "ARRAY",
+          items: {
+            type: "OBJECT",
+            properties: {
+              date: { type: "STRING" },
+              relevanceScore: { type: "NUMBER" },
+              matchReason: { type: "STRING" }
+            },
+            required: ["date", "relevanceScore", "matchReason"]
+          }
+        }
+      },
+      required: ["results"]
+    };
+
+    const getAICorrectedDiary = async (text, age, date, apiKey, provider = 'openai', feedbackLanguage = 'ko') => {
+      if (!apiKey || apiKey.trim() === '') {
+        return getMockCorrection(text, age, date, feedbackLanguage);
+      }
+
+      const langInstruction = feedbackLanguage === 'ko'
+        ? "IMPORTANT: You MUST write the 'explanation' for each correction and the 'overallFeedback' in KOREAN (한국어). The 'corrected' text itself must remain in English."
+        : "IMPORTANT: You MUST write the 'explanation' for each correction and the 'overallFeedback' in ENGLISH.";
+
+      const systemPrompt = `You are an expert English tutor. Correct the following English diary entry written by a user.
+User profile details:
+- Current Age: ${age} years old
+- Diary Date: ${date}
+
+Instructions:
+1. Review the grammar, vocabulary, and phrasing.
+2. Provide corrections tailored to their age level. If they are young, use simpler terms; if they are older, explain nuances.
+3. Grade their writing out of 100 based on standard English proficiency expectations for their age level.
+4. ${langInstruction}
+5. Output EXACTLY a JSON object with this structure (no markdown wrapper, no extra text, just raw JSON):
+{
+  "score": 85,
+  "corrections": [
+    {
+      "original": "I went to school by walk",
+      "corrected": "I walked to school",
+      "type": "grammar", // must be 'grammar', 'vocabulary', or 'expression'
+      "explanation": "Explanation here."
+    }
+  ],
+  "overallFeedback": "Feedback here."
+}`;
+
+      if (provider === 'gemini') {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ parts: [{ text: `Here is my diary entry for today:\n\n${text}` }] }],
+            generationConfig: {
+              responseMimeType: "application/json",
+              responseSchema: GEMINI_CORRECTION_SCHEMA,
+              temperature: 0.3
+            }
+          })
+        });
+        if (!response.ok) throw new Error(`Gemini Error: ${response.status}`);
+        const data = await response.json();
+        const content = data.candidates[0].content.parts[0].text.trim();
+        return JSON.parse(content);
+      } else {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            response_format: { type: 'json_object' },
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: `Here is my diary entry for today:\n\n${text}` }
+            ],
+            temperature: 0.3
+          })
+        });
+        if (!response.ok) throw new Error(`OpenAI Error: ${response.status}`);
+        const data = await response.json();
+        const content = data.choices[0].message.content.trim();
+        return JSON.parse(content);
+      }
+    };
+
+    const getSemanticSearchResults = async (diaries, queryText, apiKey, provider = 'openai') => {
+      if (diaries.length === 0) return [];
+      if (!apiKey || apiKey.trim() === '') return getLocalSearch(diaries, queryText);
+
+      const diaryListJSON = diaries.map(d => ({
+        date: d.date,
+        previewText: d.text.length > 200 ? d.text.substring(0, 200) + '...' : d.text
+      }));
+
+      const systemPrompt = `You are a semantic search assistant for an English diary app.
+The user is searching for past diary entries that match or relate to the query: "${queryText}"
+Here is a list of the user's diary entries:
+${JSON.stringify(diaryListJSON)}
+
+Identify and select up to 5 diary entries that are semantically relevant. Rank them by relevance.
+Output EXACTLY a JSON array of objects wrapped in a results field:
+{
+  "results": [
+    {
+      "date": "YYYY-MM-DD",
+      "relevanceScore": 0.95,
+      "matchReason": "Short explanation."
+    }
+  ]
+}`;
+
+      try {
+        if (provider === 'gemini') {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              contents: [{ parts: [{ text: `Find entries relevant to: "${queryText}"` }] }],
+              generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema: GEMINI_SEARCH_SCHEMA,
+                temperature: 0.2
+              }
+            })
+          });
+          if (!response.ok) throw new Error(`Search failed: ${response.status}`);
+          const data = await response.json();
+          const content = data.candidates[0].content.parts[0].text.trim();
+          const parsed = JSON.parse(content);
+          return filterSearchResults(parsed.results || [], diaries);
+        } else {
+          const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              response_format: { type: 'json_object' },
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: `Find entries relevant to: "${queryText}"` }
+              ],
+              temperature: 0.2
+            })
+          });
+          if (!response.ok) throw new Error(`Search failed: ${response.status}`);
+          const data = await response.json();
+          const content = data.choices[0].message.content.trim();
+          const parsed = JSON.parse(content);
+          return filterSearchResults(parsed.results || [], diaries);
+        }
+      } catch (err) {
+        console.error("AI search failed, fallback to local:", err);
+        return getLocalSearch(diaries, queryText);
+      }
+    };
+
+    const filterSearchResults = (results, diaries) => {
+      return results
+        .map(match => {
+          const diary = diaries.find(d => d.date === match.date);
+          if (!diary) return null;
+          return {
+            ...diary,
+            relevanceScore: match.relevanceScore || 0.5,
+            matchReason: match.matchReason || 'Matches query.'
+          };
+        })
+        .filter(Boolean);
+    };
+
+    const getMockCorrection = (text, age, date, feedbackLanguage) => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const lowercase = text.toLowerCase();
+          const corrections = [];
+          let score = 90;
+
+          if (text.includes(" i ") || text.startsWith("i ")) {
+            corrections.push({
+              original: "i",
+              corrected: "I",
+              type: "grammar",
+              explanation: feedbackLanguage === 'ko' ? "인칭 대명사 'I'는 항상 대문자로 작성해야 합니다." : "The personal pronoun 'I' should always be capitalized."
+            });
+            score -= 2;
+          }
+          if (lowercase.includes("yesterday i go")) {
+            corrections.push({
+              original: "yesterday I go",
+              corrected: "yesterday I went",
+              type: "grammar",
+              explanation: feedbackLanguage === 'ko' ? "과거의 일에는 'go' 대신 과거형 동사 'went'를 사용합니다." : "Use the past tense 'went' for past events."
+            });
+            score -= 5;
+          }
+          if (lowercase.includes("by walk")) {
+            corrections.push({
+              original: "by walk",
+              corrected: "on foot",
+              type: "expression",
+              explanation: feedbackLanguage === 'ko' ? "'by walk' 대신 'on foot'을 쓰는 것이 자연스럽습니다." : "Use 'on foot' instead of 'by walk'."
+            });
+            score -= 5;
+          }
+
+          score = Math.max(50, Math.min(100, score));
+          resolve({
+            score,
+            corrections,
+            overallFeedback: feedbackLanguage === 'ko' 
+              ? `${age}세 학습자에 맞춘 피드백입니다. 문장을 더 길고 풍부하게 작성해보세요!`
+              : `Nice work for a ${age}-year-old English writer. Try adding more descriptions next time.`
+          });
+        }, 1000);
+      });
+    };
+
+    const getLocalSearch = (diaries, queryText) => {
+      const term = queryText.toLowerCase().trim();
+      return diaries
+        .map(d => {
+          if (d.text.toLowerCase().includes(term)) {
+            return { ...d, relevanceScore: 0.8, matchReason: `Contains term "${term}"` };
+          }
+          return null;
+        })
+        .filter(Boolean);
+    };
+
+    // --- COMPONENT: AUTH ---
+    function Auth({ onAuthSuccess }) {
+      const [isLogin, setIsLogin] = useState(true);
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [birthYear, setBirthYear] = useState('2000');
+      const [error, setError] = useState('');
+      const [loading, setLoading] = useState(false);
+
+      const years = [];
+      for (let y = new Date().getFullYear(); y >= 1940; y--) years.push(y);
+
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+          if (isLogin) {
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            onAuthSuccess(userCredential.user);
+          } else {
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+            await db.collection('users').doc(user.uid).set({
+              uid: user.uid,
+              birthYear: parseInt(birthYear),
+              llmApiKey: '',
+              aiProvider: 'openai',
+              feedbackLanguage: 'ko',
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            onAuthSuccess(user);
+          }
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="auth-container">
+          <div className="glass-panel auth-card">
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
+              <div style={{ background: 'var(--primary-indigo)', padding: '0.75rem', borderRadius: '16px', color: 'white', marginBottom: '1rem' }}>
+                <Icon name="book" size={28} />
+              </div>
+              <h2>{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '4px' }}>LexiJournal | AI English Diary</p>
+            </div>
+
+            {error && <div className="alert alert-warning">{error}</div>}
+
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label className="form-label">Email Address</label>
+                <input type="email" className="input-field" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Password</label>
+                <input type="password" className="input-field" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              </div>
+              {!isLogin && (
+                <div className="form-group">
+                  <label className="form-label">Birth Year</label>
+                  <select className="input-field" value={birthYear} onChange={(e) => setBirthYear(e.target.value)}>
+                    {years.map(y => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                </div>
+              )}
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem', height: '46px' }} disabled={loading}>
+                {loading ? <div className="spinner"></div> : isLogin ? 'Sign In' : 'Sign Up'}
+              </button>
+            </form>
+
+            <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+              {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+              <button onClick={() => { setIsLogin(!isLogin); setError(''); }} style={{ background: 'none', border: 'none', color: 'var(--primary-indigo)', fontWeight: '600', cursor: 'pointer', textDecoration: 'underline' }}>
+                {isLogin ? 'Sign Up' : 'Log In'}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- COMPONENT: CALENDAR ---
+    function Calendar({ diaryMap, onSelectDate }) {
+      const [currentDate, setCurrentDate] = useState(new Date());
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const totalDays = new Date(year, month + 1, 0).getDate();
+      const prevMonthTotalDays = new Date(year, month, 0).getDate();
+
+      const formatDateStr = (y, m, d) => {
+        const mm = String(m + 1).padStart(2, '0');
+        const dd = String(d).padStart(2, '0');
+        return `${y}-${mm}-${dd}`;
+      };
+
+      const renderDays = () => {
+        const days = [];
+        const todayStr = formatDateStr(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+
+        for (let i = firstDayIndex - 1; i >= 0; i--) {
+          const d = prevMonthTotalDays - i;
+          const dStr = formatDateStr(month === 0 ? year - 1 : year, month === 0 ? 11 : month - 1, d);
+          const hasEntry = !!diaryMap[dStr];
+          days.push(
+            <div key={`prev-${d}`} className="calendar-day day-outside" onClick={() => hasEntry && onSelectDate(dStr, true)}>
+              <span>{d}</span>
+              {hasEntry && <div className="diary-dot"></div>}
+            </div>
+          );
+        }
+
+        for (let d = 1; d <= totalDays; d++) {
+          const dStr = formatDateStr(year, month, d);
+          const entry = diaryMap[dStr];
+          const isToday = dStr === todayStr;
+          days.push(
+            <div key={`curr-${d}`} className={`calendar-day ${isToday ? 'day-today' : ''}`} onClick={() => onSelectDate(dStr, !!entry)}>
+              <span>{d}</span>
+              {entry && (
+                <>
+                  <div className="diary-dot"></div>
+                  {entry.score > 0 && <div className="day-score-badge">{entry.score}</div>}
+                </>
+              )}
+            </div>
+          );
+        }
+
+        const remaining = 42 - days.length;
+        for (let d = 1; d <= remaining; d++) {
+          const dStr = formatDateStr(month === 11 ? year + 1 : year, month === 11 ? 0 : month + 1, d);
+          const hasEntry = !!diaryMap[dStr];
+          days.push(
+            <div key={`next-${d}`} className="calendar-day day-outside" onClick={() => hasEntry && onSelectDate(dStr, true)}>
+              <span>{d}</span>
+              {hasEntry && <div className="diary-dot"></div>}
+            </div>
+          );
+        }
+
+        return days;
+      };
+
+      return (
+        <div>
+          <div className="calendar-header">
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Icon name="calendar" color="var(--primary-indigo)" />
+              {monthNames[month]} {year}
+            </h3>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <button onClick={() => setCurrentDate(new Date(year, month - 1, 1))} className="btn btn-secondary" style={{ padding: '0.4rem' }}>
+                <Icon name="chevronLeft" size={16} />
+              </button>
+              <button onClick={() => setCurrentDate(new Date())} className="btn btn-secondary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>Today</button>
+              <button onClick={() => setCurrentDate(new Date(year, month + 1, 1))} className="btn btn-secondary" style={{ padding: '0.4rem' }}>
+                <Icon name="chevronRight" size={16} />
+              </button>
+            </div>
+          </div>
+          <div className="calendar-grid">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(w => <div key={w} className="weekday-header">{w}</div>)}
+            {renderDays()}
+          </div>
+        </div>
+      );
+    }
+
+    // --- COMPONENT: SCORE CHART ---
+    function ScoreChart({ diaries }) {
+      const [hovered, setHovered] = useState(null);
+      const data = diaries.filter(d => d.score > 0).slice(-10);
+
+      if (data.length === 0) {
+        return (
+          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+            <Icon name="trendingUp" size={32} style={{ marginBottom: '8px', opacity: 0.5 }} />
+            <h4 style={{ fontWeight: '500' }}>No Score Data</h4>
+            <p style={{ fontSize: '0.8rem', marginTop: '4px' }}>Submit a diary for AI tutor feedback to start graphing your progress.</p>
+          </div>
+        );
+      }
+
+      const w = 500, h = 200, pl = 40, pr = 20, pt = 20, pb = 30;
+      const cw = w - pl - pr, ch = h - pt - pb;
+
+      const getX = (i) => data.length <= 1 ? pl + cw / 2 : pl + (i / (data.length - 1)) * cw;
+      const getY = (s) => pt + ch - (s / 100) * ch;
+
+      let linePath = `M ${getX(0)} ${getY(data[0].score)}`;
+      let areaPath = `M ${getX(0)} ${pt + ch} L ${getX(0)} ${getY(data[0].score)}`;
+
+      for (let i = 1; i < data.length; i++) {
+        linePath += ` L ${getX(i)} ${getY(data[i].score)}`;
+        areaPath += ` L ${getX(i)} ${getY(data[i].score)}`;
+      }
+      areaPath += ` L ${getX(data.length - 1)} ${pt + ch} Z`;
+
+      const avg = Math.round(data.reduce((sum, d) => sum + d.score, 0) / data.length);
+
+      return (
+        <div className="glass-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Icon name="trendingUp" color="var(--primary-indigo)" /> Progress History
+            </h4>
+            <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--accent-emerald)', background: 'var(--accent-emerald-glow)', padding: '2px 8px', borderRadius: '8px' }}>
+              Avg: {avg}
+            </span>
+          </div>
+
+          <div className="chart-container">
+            <svg viewBox={`0 0 ${w} ${h}`} width="100%" height="100%">
+              <defs>
+                <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--primary-indigo)" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="var(--primary-indigo)" stopOpacity="0.0" />
+                </linearGradient>
+              </defs>
+              {[25, 50, 75, 100].map(level => (
+                <g key={level}>
+                  <line x1={pl} y1={getY(level)} x2={w - pr} y2={getY(level)} className="chart-grid" />
+                  <text x={pl - 8} y={getY(level) + 3} textAnchor="end" className="chart-axis-text">{level}</text>
+                </g>
+              ))}
+              <path d={areaPath} className="chart-area" />
+              <path d={linePath} className="chart-line" />
+              {data.map((d, i) => (
+                <circle
+                  key={d.date}
+                  cx={getX(i)}
+                  cy={getY(d.score)}
+                  r={hovered?.date === d.date ? 6 : 4}
+                  className="chart-dot"
+                  onMouseEnter={() => setHovered({ ...d, x: getX(i), y: getY(d.score) })}
+                  onMouseLeave={() => setHovered(null)}
+                />
+              ))}
+            </svg>
+            {hovered && (
+              <div className="chart-tooltip" style={{ left: `${(hovered.x / w) * 100}%`, bottom: `${((h - hovered.y) / h) * 100 + 8}%`, transform: 'translateX(-50%)', width: '130px', textAlign: 'center' }}>
+                <div style={{ fontWeight: '700', color: 'var(--primary-indigo)' }}>{hovered.score} Pts</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{hovered.date}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // --- COMPONENT: DASHBOARD ---
+    function Dashboard({ diaries, diaryMap, onSelectDate, userProfile }) {
+      const userAge = userProfile.age || (new Date().getFullYear() - (userProfile.birthYear || 2000));
+      const total = diaries.length;
+      const scored = diaries.filter(d => d.score > 0);
+      const avg = scored.length > 0 ? Math.round(scored.reduce((sum, d) => sum + d.score, 0) / scored.length) : 0;
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      const hasToday = !!diaryMap[todayStr];
+
+      return (
+        <div>
+          <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem', background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(16, 185, 129, 0.03) 100%)' }}>
+            <div>
+              <h2>Hello English Learner!</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginTop: '4px' }}>AI Tutor Profile active: Age <strong>{userAge}</strong> ({userProfile.feedbackLanguage === 'ko' ? '한국어 피드백' : 'English Feedback'})</p>
+            </div>
+            <button onClick={() => onSelectDate(todayStr, hasToday)} className={`btn ${hasToday ? 'btn-emerald' : 'btn-primary'}`}>
+              <Icon name="edit" size={16} /> {hasToday ? "View Today's Diary" : "Write Today's Diary"}
+            </button>
+          </div>
+
+          <div className="dashboard-grid">
+            <div className="glass-panel" style={{ padding: '1.5rem' }}>
+              <Calendar diaryMap={diaryMap} onSelectDate={onSelectDate} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ background: 'rgba(79,70,229,0.1)', padding: '8px', borderRadius: '8px', color: 'var(--primary-indigo)' }}>
+                    <Icon name="book" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>TOTAL ENTRIES</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: '700' }}>{total}</div>
+                  </div>
+                </div>
+                <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ background: 'rgba(16,185,129,0.1)', padding: '8px', borderRadius: '8px', color: 'var(--accent-emerald)' }}>
+                    <Icon name="award" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>AVG SCORE</div>
+                    <div style={{ fontSize: '1.4rem', fontWeight: '700' }}>{avg > 0 ? `${avg}%` : 'N/A'}</div>
+                  </div>
+                </div>
+              </div>
+              <ScoreChart diaries={diaries} />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // --- COMPONENT: DIARY EDITOR ---
+    function DiaryEditor({ selectedDate, diaryEntry, userProfile, user, onSaveSuccess, onBack }) {
+      const [text, setText] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [saving, setSaving] = useState(false);
+      const [score, setScore] = useState(0);
+      const [corrections, setCorrections] = useState([]);
+      const [overallFeedback, setOverallFeedback] = useState('');
+      const [isEditMode, setIsEditMode] = useState(true);
+      const [error, setError] = useState('');
+      const [success, setSuccess] = useState('');
+
+      const age = userProfile.age || (new Date().getFullYear() - (userProfile.birthYear || 2000));
+
+      useEffect(() => {
+        if (diaryEntry) {
+          setText(diaryEntry.text || '');
+          setScore(diaryEntry.score || 0);
+          setCorrections(diaryEntry.corrections || []);
+          setOverallFeedback(diaryEntry.overallFeedback || '');
+          setIsEditMode(false);
+        } else {
+          setText('');
+          setScore(0);
+          setCorrections([]);
+          setOverallFeedback('');
+          setIsEditMode(true);
+        }
+        setError('');
+        setSuccess('');
+      }, [diaryEntry, selectedDate]);
+
+      const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+
+      const handleSave = async () => {
+        if (!text.trim()) { setError('Cannot save empty entry.'); return; }
+        setSaving(true);
+        setError('');
+        setSuccess('');
+
+        try {
+          await db.collection('users').doc(user.uid).collection('diaries').doc(selectedDate).set({
+            date: selectedDate,
+            text,
+            score,
+            corrections,
+            overallFeedback,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          setSuccess('Draft saved successfully.');
+          onSaveSuccess();
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setSaving(false);
+        }
+      };
+
+      const handleAICorrect = async () => {
+        if (wordCount < 3) { setError('Please write at least 3 words.'); return; }
+        setLoading(true);
+        setError('');
+        setSuccess('');
+
+        try {
+          const res = await getAICorrectedDiary(
+            text,
+            age,
+            selectedDate,
+            userProfile.llmApiKey,
+            userProfile.aiProvider || 'openai',
+            userProfile.feedbackLanguage || 'ko'
+          );
+          setScore(res.score || 0);
+          setCorrections(res.corrections || []);
+          setOverallFeedback(res.overallFeedback || '');
+
+          await db.collection('users').doc(user.uid).collection('diaries').doc(selectedDate).set({
+            date: selectedDate,
+            text,
+            score: res.score || 0,
+            corrections: res.corrections || [],
+            overallFeedback: res.overallFeedback || '',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          setSuccess('AI Tutor Review Completed!');
+          setIsEditMode(false);
+          onSaveSuccess();
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const handleDelete = async () => {
+        if (confirm("Delete this diary entry?")) {
+          try {
+            await db.collection('users').doc(user.uid).collection('diaries').doc(selectedDate).delete();
+            onSaveSuccess();
+            onBack();
+          } catch (err) {
+            setError(err.message);
+          }
+        }
+      };
+
+      const circumference = 2 * Math.PI * 50;
+      const offset = circumference - (score / 100) * circumference;
+
+      return (
+        <div className="glass-panel">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '10px' }}>
+            <button onClick={onBack} className="btn btn-secondary"><Icon name="arrowLeft" size={16} /> Back</button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {diaryEntry && <button onClick={handleDelete} className="btn btn-secondary" style={{ color: 'var(--error-crimson)' }}><Icon name="trash" size={16} /> Delete</button>}
+              {isEditMode ? (
+                <>
+                  <button onClick={handleSave} className="btn btn-secondary" disabled={loading || saving}><Icon name="save" size={16} /> Save</button>
+                  <button onClick={handleAICorrect} className="btn btn-primary" disabled={loading || saving}><Icon name="sparkles" size={16} /> AI Correct</button>
+                </>
+              ) : (
+                <button onClick={() => setIsEditMode(true)} className="btn btn-primary"><Icon name="edit" size={16} /> Edit</button>
+              )}
+            </div>
+          </div>
+
+          <h2 style={{ marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>{selectedDate} Journal</h2>
+
+          {error && <div className="alert alert-warning">{error}</div>}
+          {success && <div className="alert alert-info">{success}</div>}
+
+          {isEditMode ? (
+            <div>
+              <textarea className="editor-textarea" value={text} onChange={(e) => setText(e.target.value)} placeholder="Write your diary in English..."></textarea>
+              <div className="editor-word-count">
+                <span>{wordCount} words</span>
+                {!userProfile.llmApiKey && <span style={{ color: 'var(--warning-amber)' }}>⚠️ Running in Local Mock Mode (No Key)</span>}
+              </div>
+            </div>
+          ) : (
+            <div className="editor-layout">
+              <div>
+                <h4 style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', marginBottom: '8px' }}>Your Diary</h4>
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', padding: '1.25rem', borderRadius: '12px', fontSize: '1rem', lineHeight: '1.6', whiteSpace: 'pre-wrap', marginBottom: '1.5rem' }}>
+                  {text}
+                </div>
+
+                <h4 style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', marginBottom: '8px' }}>Corrections ({corrections.length})</h4>
+                {corrections.length > 0 ? (
+                  <div className="corrections-list">
+                    {corrections.map((c, i) => (
+                      <div key={i} className={`correction-card ${c.type || 'grammar'}`}>
+                        <div className="correction-header">
+                          <span className="correction-type">{c.type || 'grammar'}</span>
+                        </div>
+                        <div className="correction-diff">
+                          <span className="diff-original">{c.original}</span>
+                          <span style={{ color: 'var(--text-muted)' }}>→</span>
+                          <span className="diff-corrected">{c.corrected}</span>
+                        </div>
+                        <p className="correction-explanation">{c.explanation}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ color: 'var(--accent-emerald)', padding: '8px 0' }}>Perfect writing! No errors found.</div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
+                <div className="score-gauge-container">
+                  <svg className="score-svg">
+                    <circle cx="60" cy="60" r="50" className="score-circle-bg" />
+                    <circle cx="60" cy="60" r="50" className="score-circle-progress" style={{ strokeDasharray: circumference, strokeDashoffset: offset }} />
+                  </svg>
+                  <div className="score-text-overlay">
+                    <span className="score-number">{score}</span>
+                    <span className="score-label">/ 100</span>
+                  </div>
+                </div>
+                <div className="glass-card" style={{ width: '100%' }}>
+                  <h5 style={{ marginBottom: '6px' }}>AI Tutor Feedback</h5>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontStyle: 'italic', lineHeight: '1.5' }}>"{overallFeedback || 'No feedback'}"</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // --- COMPONENT: BOOK VIEWER ---
+    function BookViewer({ diaries, onSelectDate }) {
+      const [index, setIndex] = useState(0);
+      const active = diaries.filter(d => d.text);
+
+      if (active.length === 0) {
+        return (
+          <div className="glass-panel" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+            <Icon name="book" size={48} style={{ opacity: 0.5, marginBottom: '1rem' }} />
+            <h3>No Diaries to Display</h3>
+            <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>Save a few diaries first in the calendar dashboard.</p>
+          </div>
+        );
+      }
+
+      const curr = active[index];
+
+      return (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2>Journal Book</h2>
+            <button className="btn btn-secondary" onClick={() => onSelectDate(curr.date)}>Edit Entry</button>
+          </div>
+
+          <div className="book-outer-container">
+            <div className="book">
+              <div className="book-page left-page">
+                <div className="book-page-header">
+                  <span>{curr.date}</span>
+                  <span>Page {index * 2 + 1}</span>
+                </div>
+                <div className="book-page-content">
+                  {curr.score > 0 && <div className="book-page-score">Score: {curr.score}/100</div>}
+                  <p style={{ textIndent: '1.5rem', textAlign: 'justify', color: 'var(--book-page-text)' }}>{curr.text}</p>
+                </div>
+              </div>
+              <div className="book-page right-page">
+                <div className="book-page-header">
+                  <span>Tutor Feedback</span>
+                  <span>Page {index * 2 + 2}</span>
+                </div>
+                <div className="book-page-content" style={{ color: 'var(--book-page-text)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {curr.overallFeedback && <div style={{ background: '#f5f5f4', padding: '10px', borderRadius: '4px', fontStyle: 'italic', fontSize: '0.9rem' }}>"{curr.overallFeedback}"</div>}
+                  <div>
+                    <h5 style={{ borderBottom: '1px solid var(--book-page-border)', paddingBottom: '4px', marginBottom: '8px' }}>Grammar Fixes</h5>
+                    {curr.corrections && curr.corrections.length > 0 ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem' }}>
+                        {curr.corrections.map((c, i) => (
+                          <div key={i}>
+                            <span style={{ textDecoration: 'line-through', opacity: 0.5 }}>{c.original}</span> → <span style={{ color: '#15803d', fontWeight: '700' }}>{c.corrected}</span>
+                            <div style={{ fontSize: '0.8rem', color: '#57534e' }}>{c.explanation}</div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : <span style={{ fontSize: '0.85rem', color: '#16a34a' }}>Writing matches target goals perfectly.</span>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="book-navigation">
+            <button className="btn btn-secondary" onClick={() => setIndex(prev => Math.max(0, prev - 1))} disabled={index === 0}><Icon name="chevronLeft" /> Previous</button>
+            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Entry {index + 1} of {active.length}</span>
+            <button className="btn btn-secondary" onClick={() => setIndex(prev => Math.min(active.length - 1, prev + 1))} disabled={index === active.length - 1}>Next <Icon name="chevronRight" /></button>
+          </div>
+        </div>
+      );
+    }
+
+    // --- COMPONENT: SEMANTIC SEARCH ---
+    function Search({ diaries, userProfile, onSelectEntry }) {
+      const [query, setQuery] = useState('');
+      const [results, setResults] = useState([]);
+      const [loading, setLoading] = useState(false);
+      const [searched, setSearched] = useState(false);
+      const [error, setError] = useState('');
+
+      const handleSearch = async (e) => {
+        e.preventDefault();
+        if (!query.trim()) return;
+        setLoading(true);
+        setError('');
+        setSearched(true);
+
+        try {
+          const matches = await getSemanticSearchResults(diaries, query, userProfile.llmApiKey, userProfile.aiProvider || 'openai');
+          setResults(matches);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="glass-panel">
+          <h2>AI Semantic Search</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>Query your archives by concepts or feelings rather than exact keyword matches.</p>
+
+          <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px', marginBottom: '1.5rem' }}>
+            <input type="text" className="input-field" style={{ flex: 1 }} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="e.g. 'feeling tired after work'..." required />
+            <button type="submit" className="btn btn-primary" disabled={loading}>Search</button>
+          </form>
+
+          {error && <div className="alert alert-warning">{error}</div>}
+          {loading && <div style={{ display: 'flex', justifyContent: 'center', padding: '2rem' }}><div className="spinner"></div></div>}
+
+          {!loading && searched && (
+            <div>
+              <h3>Matches ({results.length})</h3>
+              <div className="search-results-list">
+                {results.map(r => (
+                  <div key={r.date} className="glass-card search-result-card" onClick={() => onSelectEntry(r.date)}>
+                    <div className="search-result-meta">
+                      <span style={{ fontWeight: '600' }}>{r.date}</span>
+                      {r.matchReason && <span className="search-result-reason">{r.matchReason}</span>}
+                    </div>
+                    <p className="search-result-text">"{r.text}"</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // --- COMPONENT: SETTINGS ---
+    function Settings({ user, onProfileUpdate }) {
+      const [apiKey, setApiKey] = useState('');
+      const [aiProvider, setAiProvider] = useState('openai');
+      const [feedbackLanguage, setFeedbackLanguage] = useState('ko');
+      const [birthYear, setBirthYear] = useState('2000');
+      const [loading, setLoading] = useState(true);
+      const [saving, setSaving] = useState(false);
+      const [msg, setMsg] = useState('');
+
+      const years = [];
+      for (let y = new Date().getFullYear(); y >= 1940; y--) years.push(y);
+
+      useEffect(() => {
+        async function load() {
+          try {
+            const docRef = await db.collection('users').doc(user.uid).get();
+            if (docRef.exists) {
+              const d = docRef.data();
+              setApiKey(d.llmApiKey || '');
+              setAiProvider(d.aiProvider || 'openai');
+              setFeedbackLanguage(d.feedbackLanguage || 'ko');
+              setBirthYear((d.birthYear || 2000).toString());
+            }
+          } catch (err) {
+            console.error(err);
+          } finally {
+            setLoading(false);
+          }
+        }
+        load();
+      }, [user.uid]);
+
+      const handleSave = async (e) => {
+        e.preventDefault();
+        setSaving(true);
+        setMsg('');
+
+        try {
+          const yNum = parseInt(birthYear);
+          await db.collection('users').doc(user.uid).set({
+            llmApiKey: apiKey.trim(),
+            aiProvider,
+            feedbackLanguage,
+            birthYear: yNum
+          }, { merge: true });
+          
+          setMsg('Saved successfully!');
+          onProfileUpdate({
+            llmApiKey: apiKey.trim(),
+            aiProvider,
+            feedbackLanguage,
+            birthYear: yNum,
+            age: new Date().getFullYear() - yNum
+          });
+        } catch (err) {
+          setMsg(`Error: ${err.message}`);
+        } finally {
+          setSaving(false);
+        }
+      };
+
+      if (loading) return <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}><div className="spinner spinner-large"></div></div>;
+
+      return (
+        <div style={{ maxWidth: '600px', margin: '0 auto', width: '100%' }} className="glass-panel">
+          <h2>Profile & AI Settings</h2>
+          {msg && <div className="alert alert-info" style={{ marginTop: '1rem' }}>{msg}</div>}
+
+          <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1.5rem' }}>
+            <div className="form-group">
+              <label className="form-label">Birth Year</label>
+              <select className="input-field" value={birthYear} onChange={(e) => setBirthYear(e.target.value)}>
+                {years.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">AI Tutor Model Provider</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div onClick={() => setAiProvider('openai')} style={{ padding: '12px', border: `2px solid ${aiProvider === 'openai' ? 'var(--primary-indigo)' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', textAlign: 'center', background: aiProvider === 'openai' ? 'rgba(79,70,229,0.05)' : 'none' }}>
+                  <strong>OpenAI</strong>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>GPT-4o-mini</div>
+                </div>
+                <div onClick={() => setAiProvider('gemini')} style={{ padding: '12px', border: `2px solid ${aiProvider === 'gemini' ? 'var(--primary-indigo)' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', textAlign: 'center', background: aiProvider === 'gemini' ? 'rgba(79,70,229,0.05)' : 'none' }}>
+                  <strong>Google Gemini</strong>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Gemini 3.5 Flash</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">AI Tutor Feedback Language</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div onClick={() => setFeedbackLanguage('ko')} style={{ padding: '12px', border: `2px solid ${feedbackLanguage === 'ko' ? 'var(--primary-indigo)' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', textAlign: 'center', background: feedbackLanguage === 'ko' ? 'rgba(79,70,229,0.05)' : 'none' }}>
+                  한국어 (Korean)
+                </div>
+                <div onClick={() => setFeedbackLanguage('en')} style={{ padding: '12px', border: `2px solid ${feedbackLanguage === 'en' ? 'var(--primary-indigo)' : 'var(--border-color)'}`, borderRadius: '8px', cursor: 'pointer', textAlign: 'center', background: feedbackLanguage === 'en' ? 'rgba(79,70,229,0.05)' : 'none' }}>
+                  영어 (English)
+                </div>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">API Key</label>
+              <input type="password" className="input-field" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="sk-... / AIzaSy..." />
+            </div>
+
+            <button type="submit" className="btn btn-primary" disabled={saving}>Save Settings</button>
+          </form>
+        </div>
+      );
+    }
+
+    // --- MAIN APP COMPONENT ---
+    function App() {
+      const [user, setUser] = useState(null);
+      const [userProfile, setUserProfile] = useState({ birthYear: 2000, llmApiKey: '', age: 26, aiProvider: 'openai', feedbackLanguage: 'ko' });
+      const [diaries, setDiaries] = useState([]);
+      const [diaryMap, setDiaryMap] = useState({});
+      const [activeTab, setActiveTab] = useState('dashboard');
+      const [editingDate, setEditingDate] = useState(null);
+      const [theme, setTheme] = useState('dark');
+      const [loading, setLoading] = useState(true);
+
+      // Auth subscription
+      useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((u) => {
+          setUser(u);
+          if (u) {
+            fetchData(u);
+          } else {
+            setDiaries([]);
+            setDiaryMap({});
+            setLoading(false);
+          }
+        });
+        return () => unsubscribe();
+      }, []);
+
+      const fetchData = async (u) => {
+        setLoading(true);
+        try {
+          const docRef = await db.collection('users').doc(u.uid).get();
+          let profile = { birthYear: 2000, llmApiKey: '', aiProvider: 'openai', feedbackLanguage: 'ko' };
+          if (docRef.exists) {
+            profile = { ...profile, ...docRef.data() };
+          }
+          const currentYear = new Date().getFullYear();
+          const age = currentYear - profile.birthYear;
+          setUserProfile({ ...profile, age });
+
+          // Fetch diaries subcollection
+          const querySnapshot = await db.collection('users').doc(u.uid).collection('diaries').orderBy('date', 'asc').get();
+          const list = [];
+          const map = {};
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            list.push(data);
+            map[data.date] = data;
+          });
+          setDiaries(list);
+          setDiaryMap(map);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+      }, [theme]);
+
+      const handleSaveSuccess = () => {
+        if (user) fetchData(user);
+      };
+
+      const handleLogout = async () => {
+        if (confirm("Log out?")) {
+          await auth.signOut();
+          setUser(null);
+          setEditingDate(null);
+          setActiveTab('dashboard');
+        }
+      };
+
+      if (loading && !user) {
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <div className="spinner spinner-large"></div>
+          </div>
+        );
+      }
+
+      if (!user) {
+        return (
+          <div className="app-container">
+            <Auth onAuthSuccess={(u) => setUser(u)} />
+          </div>
+        );
+      }
+
+      return (
+        <div className="app-container">
+          <header className="app-header">
+            <div className="logo-container">
+              <div style={{ background: 'linear-gradient(135deg, var(--primary-indigo), var(--accent-emerald))', padding: '0.45rem', borderRadius: '10px', color: 'white', display: 'flex' }}>
+                <Icon name="book" size={20} />
+              </div>
+              <span className="logo-text">LexiJournal</span>
+            </div>
+
+            <div className="nav-actions">
+              <nav className="desktop-only-nav" style={{ display: 'flex', gap: '4px' }}>
+                <button className={`btn ${activeTab === 'dashboard' && !editingDate ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setActiveTab('dashboard'); setEditingDate(null); }}>Dashboard</button>
+                <button className={`btn ${activeTab === 'book' && !editingDate ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setActiveTab('book'); setEditingDate(null); }}>Book Journal</button>
+                <button className={`btn ${activeTab === 'search' && !editingDate ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setActiveTab('search'); setEditingDate(null); }}>Search</button>
+                <button className={`btn ${activeTab === 'settings' && !editingDate ? 'btn-primary' : 'btn-secondary'}`} onClick={() => { setActiveTab('settings'); setEditingDate(null); }}>Settings</button>
+              </nav>
+              
+              <div className="theme-switch" onClick={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')}>
+                <button className={`theme-switch-btn ${theme === 'light' ? 'active' : ''}`}><Icon name="sun" size={14} /></button>
+                <button className={`theme-switch-btn ${theme === 'dark' ? 'active' : ''}`}><Icon name="moon" size={14} /></button>
+              </div>
+
+              <button className="btn btn-secondary" style={{ padding: '0.45rem', borderRadius: '50%' }} onClick={handleLogout}>
+                <Icon name="logout" size={16} color="var(--error-crimson)" />
+              </button>
+            </div>
+          </header>
+
+          <main style={{ flex: 1 }}>
+            {!userProfile.llmApiKey && activeTab !== 'settings' && !editingDate && (
+              <div className="alert alert-warning" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>AI Tutor is in demo mode. Configure your API key in settings.</span>
+                <button className="btn btn-primary" style={{ padding: '4px 10px', fontSize: '0.8rem' }} onClick={() => setActiveTab('settings')}>Set Key</button>
+              </div>
+            )}
+
+            {editingDate ? (
+              <DiaryEditor
+                selectedDate={editingDate}
+                diaryEntry={diaryMap[editingDate]}
+                userProfile={userProfile}
+                user={user}
+                onSaveSuccess={handleSaveSuccess}
+                onBack={() => setEditingDate(null)}
+              />
+            ) : (
+              <>
+                {activeTab === 'dashboard' && <Dashboard diaries={diaries} diaryMap={diaryMap} onSelectDate={(d) => setEditingDate(d)} userProfile={userProfile} />}
+                {activeTab === 'book' && <BookViewer diaries={diaries} onSelectDate={(d) => setEditingDate(d)} />}
+                {activeTab === 'search' && <Search diaries={diaries} userProfile={userProfile} onSelectEntry={(d) => setEditingDate(d)} />}
+                {activeTab === 'settings' && <Settings user={user} onProfileUpdate={(p) => setUserProfile(prev => ({ ...prev, ...p }))} />}
+              </>
+            )}
+          </main>
+
+          <div className="bottom-nav">
+            <button className={`theme-switch-btn ${activeTab === 'dashboard' && !editingDate ? 'active' : ''}`} onClick={() => { setActiveTab('dashboard'); setEditingDate(null); }}><Icon name="dashboard" /></button>
+            <button className={`theme-switch-btn ${activeTab === 'book' && !editingDate ? 'active' : ''}`} onClick={() => { setActiveTab('book'); setEditingDate(null); }}><Icon name="book" /></button>
+            <button className={`theme-switch-btn ${activeTab === 'search' && !editingDate ? 'active' : ''}`} onClick={() => { setActiveTab('search'); setEditingDate(null); }}><Icon name="search" /></button>
+            <button className={`theme-switch-btn ${activeTab === 'settings' && !editingDate ? 'active' : ''}`} onClick={() => { setActiveTab('settings'); setEditingDate(null); }}><Icon name="settings" /></button>
+          </div>
+        </div>
+      );
+    }
+
+    // Render the React application
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
