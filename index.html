@@ -623,9 +623,6 @@
       .book-page {
         width: 100%;
       }
-      .left-page {
-        display: none;
-      }
       .right-page {
         border-radius: 4px;
       }
@@ -1693,8 +1690,24 @@ Output EXACTLY a JSON array of objects wrapped in a results field:
 
     // --- COMPONENT: BOOK VIEWER ---
     function BookViewer({ diaries, onSelectDate }) {
-      const [index, setIndex] = useState(0);
+      const [pageIndex, setPageIndex] = useState(0);
+      const [isMobile, setIsMobile] = useState(window.innerWidth <= 960);
       const active = diaries.filter(d => d.text);
+
+      useEffect(() => {
+        const handleResize = () => {
+          setIsMobile(window.innerWidth <= 960);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+      }, []);
+
+      // Reset pageIndex if it goes out of range
+      useEffect(() => {
+        if (pageIndex >= active.length * 2) {
+          setPageIndex(0);
+        }
+      }, [active.length, pageIndex]);
 
       if (active.length === 0) {
         return (
@@ -1706,7 +1719,55 @@ Output EXACTLY a JSON array of objects wrapped in a results field:
         );
       }
 
-      const curr = active[index];
+      const entryIndex = Math.floor(pageIndex / 2);
+      const curr = active[entryIndex];
+
+      const handlePrev = () => {
+        if (isMobile) {
+          setPageIndex(prev => Math.max(0, prev - 1));
+        } else {
+          setPageIndex(prev => Math.max(0, Math.floor(prev / 2) * 2 - 2));
+        }
+      };
+
+      const handleNext = () => {
+        if (isMobile) {
+          setPageIndex(prev => Math.min(active.length * 2 - 1, prev + 1));
+        } else {
+          setPageIndex(prev => Math.min(active.length * 2 - 2, Math.floor(prev / 2) * 2 + 2));
+        }
+      };
+
+      const touchStartX = useRef(0);
+      const touchStartY = useRef(0);
+      const touchEndX = useRef(0);
+      const touchEndY = useRef(0);
+
+      const handleTouchStart = (e) => {
+        touchStartX.current = e.targetTouches[0].clientX;
+        touchStartY.current = e.targetTouches[0].clientY;
+        touchEndX.current = e.targetTouches[0].clientX;
+        touchEndY.current = e.targetTouches[0].clientY;
+      };
+
+      const handleTouchMove = (e) => {
+        touchEndX.current = e.targetTouches[0].clientX;
+        touchEndY.current = e.targetTouches[0].clientY;
+      };
+
+      const handleTouchEnd = () => {
+        const diffX = touchStartX.current - touchEndX.current;
+        const diffY = touchStartY.current - touchEndY.current;
+        const swipeThreshold = 50;
+
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+          if (diffX > swipeThreshold) {
+            handleNext();
+          } else if (diffX < -swipeThreshold) {
+            handlePrev();
+          }
+        }
+      };
 
       return (
         <div>
@@ -1716,21 +1777,32 @@ Output EXACTLY a JSON array of objects wrapped in a results field:
           </div>
 
           <div className="book-outer-container">
-            <div className="book">
-              <div className="book-page left-page">
+            <div 
+              className="book"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div 
+                className="book-page left-page"
+                style={{ display: isMobile && pageIndex % 2 !== 0 ? 'none' : 'block' }}
+              >
                 <div className="book-page-header">
                   <span>{curr.date}</span>
-                  <span>Page {index * 2 + 1}</span>
+                  <span>Page {entryIndex * 2 + 1}</span>
                 </div>
                 <div className="book-page-content">
                   {curr.score > 0 && <div className="book-page-score">Score: {curr.score}/100</div>}
                   <p style={{ textIndent: '1.5rem', textAlign: 'justify', color: 'var(--book-page-text)' }}>{curr.text}</p>
                 </div>
               </div>
-              <div className="book-page right-page">
+              <div 
+                className="book-page right-page"
+                style={{ display: isMobile && pageIndex % 2 !== 1 ? 'none' : 'block' }}
+              >
                 <div className="book-page-header">
                   <span>Tutor Feedback</span>
-                  <span>Page {index * 2 + 2}</span>
+                  <span>Page {entryIndex * 2 + 2}</span>
                 </div>
                 <div className="book-page-content" style={{ color: 'var(--book-page-text)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {curr.overallFeedback && <div style={{ background: '#f5f5f4', padding: '10px', borderRadius: '4px', fontStyle: 'italic', fontSize: '0.9rem' }}>"{curr.overallFeedback}"</div>}
@@ -1753,9 +1825,11 @@ Output EXACTLY a JSON array of objects wrapped in a results field:
           </div>
 
           <div className="book-navigation">
-            <button className="btn btn-secondary" onClick={() => setIndex(prev => Math.max(0, prev - 1))} disabled={index === 0}><Icon name="chevronLeft" /> Previous</button>
-            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Entry {index + 1} of {active.length}</span>
-            <button className="btn btn-secondary" onClick={() => setIndex(prev => Math.min(active.length - 1, prev + 1))} disabled={index === active.length - 1}>Next <Icon name="chevronRight" /></button>
+            <button className="btn btn-secondary" onClick={handlePrev} disabled={isMobile ? pageIndex === 0 : pageIndex < 2}><Icon name="chevronLeft" /> Previous</button>
+            <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+              {isMobile ? `Page ${pageIndex + 1} of ${active.length * 2}` : `Entry ${entryIndex + 1} of ${active.length}`}
+            </span>
+            <button className="btn btn-secondary" onClick={handleNext} disabled={isMobile ? pageIndex === active.length * 2 - 1 : pageIndex >= active.length * 2 - 2}>Next <Icon name="chevronRight" /></button>
           </div>
         </div>
       );
